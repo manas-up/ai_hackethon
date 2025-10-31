@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Trip Planner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>AI Trip Planner ✈️</h1>
+        <form method="POST">
+            <label>Source:</label>
+            <input type="text" name="source" placeholder="Enter Source" required>
+
+            <label>Destination:</label>
+            <input type="text" name="destination" placeholder="Enter Destination" required>
+
+            <button type="submit">Get Travel Options</button>
+        </form>
+
+        {% if options %}
+        <div class="result">
+            <h2>Travel Options:</h2>
+            <ul>
+                {% for opt in options %}
+                    <li>{{ opt }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
