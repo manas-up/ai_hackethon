@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Travel Itinerary Planner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="hero">
+        <h1>🤖 AI Travel Itinerary Planner</h1>
+        <p>Plan your perfect journey with AI-powered recommendations and detailed guides</p>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('explore')">🌍 Explore</button>
+            <button class="tab" onclick="switchTab('travel-options')">🚗 Travel Options</button>
+            <button class="tab" onclick="switchTab('ai-itinerary')">🤖 AI Itinerary</button>
+            <button class="tab" onclick="switchTab('search')">🔍 Search</button>
+            <button class="tab" onclick="switchTab('my-trips')">📋 My Trips</button>
+        </div>
+
+
+        <!-- Explore Tab -->
+        <div id="explore" class="tab-content active">
+            <h2 style="margin-bottom: var(--space-24);">Popular Destinations in India</h2>
+            <div id="destinationsGrid" class="destinations-grid"></div>
+        </div>
+
+        <!-- Travel Options Tab -->
+        <div id="travel-options" class="tab-content">
+            <div class="search-section">
+                <h2 style="margin-bottom: var(--space-20);">Find Travel Options</h2>
+                <div class="search-bar">
+                    <input type="text" id="travelSource" placeholder="Source (e.g., Mumbai)">
+                    <input type="text" id="travelDestination" placeholder="Destination (e.g., Goa)">
+                    <button class="btn" onclick="getTravelOptions()">Get Travel Options</button>
+                </div>
+                <div id="travelResult"></div>
+            </div>
+        </div>
+
+        <!-- AI Itinerary Generator Tab -->
+        <div id="ai-itinerary" class="tab-content">
+            <div class="search-section">
+                <h2 style="margin-bottom: var(--space-20);">Generate AI Itinerary</h2>
+                <div class="form-group">
+                    <label for="aiDestination">Destination</label>
+                    <input type="text" id="aiDestination" placeholder="Enter destination (e.g., Jaipur)">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-16);">
+                    <div class="form-group">
+                        <label for="aiStartDate">Start Date</label>
+                        <input type="date" id="aiStartDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="aiEndDate">End Date</label>
+                        <input type="date" id="aiEndDate">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="interests">Interests</label>
+                    <input type="text" id="interests" placeholder="e.g., adventure, culture, food, photography">
+                </div>
+                <button class="btn" onclick="generateAIItinerary()">Generate Itinerary</button>
+                <div id="aiResult"></div>
+            </div>
+        </div>
+
+        <!-- Search Tab -->
+        <div id="search" class="tab-content">
+            <div class="search-section">
+                <h2 style="margin-bottom: var(--space-20);">Search Destinations</h2>
+                <div class="form-group">
+                    <label for="searchQuery">What would you like to know about travel destinations?</label>
+                    <input type="text" id="searchQuery"
+                        placeholder="e.g., best beaches in India, hill stations near Pune, places to visit in winter">
+                    <small
+                        style="color: var(--color-text-secondary); font-size: var(--font-size-sm); margin-top: var(--space-8); display: block;">
+                        ℹ️ Please enter travel-related queries only (destinations, attractions, travel tips, etc.)
+                    </small>
+                </div>
+                <button class="btn" onclick="searchDestinationsAI()">Search</button>
+                <div id="searchResult"></div>
+            </div>
+
+            <div class="search-section" style="margin-top: var(--space-24);">
+                <h2 style="margin-bottom: var(--space-20);">Get Destination Suggestions</h2>
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-16);">
+                    <div class="form-group">
+                        <label for="suggestionBudget">Budget</label>
+                        <select id="suggestionBudget">
+                            <option value="budget">Budget</option>
+                            <option value="moderate" selected>Moderate</option>
+                            <option value="luxury">Luxury</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="suggestionInterests">Interests</label>
+                        <input type="text" id="suggestionInterests" placeholder="e.g., beaches, mountains">
+                    </div>
+                    <div class="form-group">
+                        <label for="suggestionSeason">Season</label>
+                        <select id="suggestionSeason">
+                            <option value="any">Any</option>
+                            <option value="summer">Summer</option>
+                            <option value="winter">Winter</option>
+                            <option value="monsoon">Monsoon</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn" onclick="getDestinationSuggestions()">Get Suggestions</button>
+                <div id="suggestionsResult"></div>
+            </div>
+        </div>
+
+        <!-- My Trips Tab -->
+        <div id="my-trips" class="tab-content">
+            <div class="itinerary-section">
+                <h2>My Travel Itineraries</h2>
+
+                <button class="btn btn-secondary" onclick="toggleItineraryForm()"
+                    style="margin-bottom: var(--space-20);">
+                    + Add New Itinerary
+                </button>
+
+                <div id="addItineraryForm" class="add-itinerary-form hidden">
+                    <h3 style="margin-bottom: var(--space-16);">Create New Itinerary</h3>
+                    <div class="form-group">
+                        <label for="tripName">Trip Name</label>
+                        <input type="text" id="tripName" placeholder="e.g., Summer Vacation to Bali">
+                    </div>
+                    <div class="form-group">
+                        <label for="destination">Destination</label>
+                        <input type="text" id="destination" placeholder="Enter destination">
+                    </div>
+                    <div class="form-group">
+                        <label for="startDate">Start Date</label>
+                        <input type="date" id="startDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate">End Date</label>
+                        <input type="date" id="endDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="budget">Budget (₹)</label>
+                        <input type="number" id="budget" placeholder="Enter estimated budget">
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" placeholder="Add any additional notes or plans..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn" onclick="addItinerary()">Save Itinerary</button>
+                        <button class="btn btn-secondary" onclick="toggleItineraryForm()">Cancel</button>
+                    </div>
+                </div>
+
+                <ul id="itineraryList" class="itinerary-list"></ul>
+                <div id="emptyItinerary" class="empty-state">
+                    <p>No itineraries yet. Start planning your next adventure!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        // Override the generateAIItinerary function with date-based input and nice card display
+        async function generateAIItinerary() {
+            const destination = document.getElementById('aiDestination').value.trim();
+            const startDateStr = document.getElementById('aiStartDate').value;
+            const endDateStr = document.getElementById('aiEndDate').value;
+            const interests = document.getElementById('interests').value.trim() || 'general sightseeing';
+
+            if (!destination) {
+                showError('aiResult', 'Please enter a destination');
+                return;
+            }
+
+            if (!startDateStr || !endDateStr) {
+                showError('aiResult', 'Please select both start and end dates');
+                return;
+            }
+
+            const startDate = new Date(startDateStr);
+            const endDate = new Date(endDateStr);
+
+            if (endDate < startDate) {
+                showError('aiResult', 'End date must be after start date');
+                return;
+            }
+
+            const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+
+            showLoading('aiResult');
+
+            try {
+                const response = await fetch('/api/generate-itinerary', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ destination, days, interests, startDate: startDateStr, endDate: endDateStr })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Store the result in a global variable
+                    window.currentAIResult = data.result;
+
+                    // Parse and display in nice card format
+                    const parsedHTML = parseItineraryToCards(data.result, destination, startDateStr, endDateStr);
+
+                    document.getElementById('aiResult').innerHTML = `
+                        ${parsedHTML}
+                        <button class="btn btn-secondary" style="margin-top: var(--space-16);" 
+                                onclick="saveCurrentAIItinerary('${destination.replace(/'/g, "\\'")}', ${days}, '${startDateStr}', '${endDateStr}')">
+                            💾 Save This Itinerary
+                        </button>
+                    `;
+                } else {
+                    showError('aiResult', data.error || 'Failed to generate itinerary');
+                }
+            } catch (error) {
+                showError('aiResult', 'Network error. Please try again.');
+            }
+        }
+
+
+        function parseItineraryToCards(rawText, destination, startDateStr, endDateStr) {
+    // Clean out markdown symbols and handle newlines
+    let text = rawText
+        .replace(/\*\*/g, '')       // remove bold markdown
+        .replace(/\\n/g, '\n')      // decode escaped newlines if any
+        .replace(/\r/g, '')         // remove carriage returns
+        .trim();
+
+    // Split into days using the "---" divider
+    const dayBlocks = text.split(/-{3,}/g).map(d => d.trim()).filter(Boolean);
+
+    let html = `
+        <div class="itinerary-header">
+            <h2>${destination} Itinerary</h2>
+            <p>${startDateStr} → ${endDateStr}</p>
+        </div>
+    `;
+
+    dayBlocks.forEach(block => {
+        // Extract day title (e.g., "Day 1: Arrival & Beach Relaxation")
+        const titleMatch = block.match(/Day\s*\d+:[^\n]*/);
+        const title = titleMatch ? titleMatch[0].trim() : null;
+
+        // If it's not a Day (like "Final Tips" or intro), handle separately
+        if (!title) {
+            html += `<div class="day-card"><h3>Additional Info</h3><p>${block.replace(/\n+/g, '<br>')}</p></div>`;
+            return;
+        }
+
+        // Extract morning, afternoon, evening sections
+        const sections = [];
+        const sectionRegex = /(\bMorning|\bAfternoon|\bEvening)\s*\([^)]+\)\s*([\s\S]*?)(?=(\bMorning|\bAfternoon|\bEvening|\*\*Budget|\*\*Travel Tip|$))/gi;
+        let match;
+        while ((match = sectionRegex.exec(block)) !== null) {
+            sections.push({
+                period: match[1].trim(),
+                content: match[2].trim()
+                    .replace(/^- /gm, '• ') // replace - with bullets
+                    .replace(/\n+/g, '<br>') // convert line breaks
+            });
+        }
+
+        // Extract budget and travel tip
+        const budgetMatch = block.match(/\bBudget:?\s*([^\n]*)/i);
+        const tipMatch = block.match(/\bTravel Tip:?\s*([^\n]*)/i);
+
+        // Build HTML for this day
+        let dayHTML = `<div class="day-card"><h3>${title}</h3>`;
+
+        sections.forEach(s => {
+            dayHTML += `
+                <div class="itinerary-section">
+                    <h4>${s.period}</h4>
+                    <p>${s.content}</p>
+                </div>
+            `;
+        });
+
+        if (budgetMatch || tipMatch) {
+            dayHTML += `<div class="day-footer">`;
+            if (budgetMatch) dayHTML += `<p><strong>Budget:</strong> ${budgetMatch[1]}</p>`;
+            if (tipMatch) dayHTML += `<p><strong>Tip:</strong> ${tipMatch[1]}</p>`;
+            dayHTML += `</div>`;
+        }
+
+        dayHTML += `</div>`;
+        html += dayHTML;
+    });
+
+    return `<div class="itinerary-container">${html}</div>`;
+}
+
+
+        // Enhanced function to parse AI itinerary text into beautiful card display with emojis
+        // function parseItineraryToCards(itineraryText, destination, startDate, endDate) {
+        //     const lines = itineraryText.split('\n');
+        //     let parsedDays = [];
+        //     let header = '';
+        //     let i = 0;
+
+        //     // Extract header (before first "Day")
+        //     let headerLines = [];
+        //     while (i < lines.length && !lines[i].match(/^(###\s*Day\s+\d+|Day\s+\d+|##\s*Day\s+\d+|\*\*Day\s+\d+)/i)) {
+        //         if (lines[i].trim() && !lines[i].trim().match(/^---+$/)) {
+        //             headerLines.push(lines[i].trim().replace(/^#+\s*/, '').replace(/\*\*/g, ''));
+        //         }
+        //         i++;
+        //     }
+        //     header = headerLines.join('<br>');
+
+        //     // Parse day-by-day content with enhanced structure
+        //     while (i < lines.length) {
+        //         const line = lines[i].trim();
+
+        //         // Match various day formats: "### Day 1:", "Day 1:", "**Day 1**", etc.
+        //         const dayMatch = line.match(/^(###\s*|\*\*)?Day\s+(\d+)[\*:]?\s*:?\s*(.*?)(\*\*)?$/i);
+
+        //         if (dayMatch) {
+        //             const dayNum = dayMatch[2];
+        //             const dayTitle = dayMatch[3] || '';
+        //             let dayData = {
+        //                 day: dayNum,
+        //                 title: dayTitle.replace(/\*\*/g, ''),
+        //                 morning: [],
+        //                 afternoon: [],
+        //                 evening: [],
+        //                 budget: '',
+        //                 tip: ''
+        //             };
+
+        //             i++; // Move to next line
+        //             let currentSection = null;
+
+        //             // Parse content for this day - enhanced parsing logic
+        //             while (i < lines.length && !lines[i].trim().match(/^(###\s*Day\s+\d+|Day\s+\d+:)/i)) {
+        //                 const contentLine = lines[i].trim();
+
+        //                 // Match section headers with time ranges: "Morning (8:00 AM - 12:00 PM)"
+        //                 if (contentLine.match(/^Morning\s*(\(.*?\))?/i)) {
+        //                     currentSection = 'morning';
+        //                     // Extract time if present
+        //                     const timeMatch = contentLine.match(/\((.*?)\)/);
+        //                     if (timeMatch) {
+        //                         dayData.morning.push(`⏰ ${timeMatch[1]}`);
+        //                     }
+        //                 } else if (contentLine.match(/^Afternoon\s*(\(.*?\))?/i)) {
+        //                     currentSection = 'afternoon';
+        //                     const timeMatch = contentLine.match(/\((.*?)\)/);
+        //                     if (timeMatch) {
+        //                         dayData.afternoon.push(`⏰ ${timeMatch[1]}`);
+        //                     }
+        //                 } else if (contentLine.match(/^Evening\s*(\(.*?\))?/i)) {
+        //                     currentSection = 'evening';
+        //                     const timeMatch = contentLine.match(/\((.*?)\)/);
+        //                     if (timeMatch) {
+        //                         dayData.evening.push(`⏰ ${timeMatch[1]}`);
+        //                     }
+        //                 } else if (contentLine.match(/^(Estimated\s+)?Budget[\*:]?\s*/i)) {
+        //                     dayData.budget = contentLine.replace(/^(Estimated\s+)?Budget[\*:]?\s*/i, '').replace(/\*\*/g, '');
+        //                 } else if (contentLine.match(/^Travel\s+Tip[\*:]?\s*/i)) {
+        //                     dayData.tip = contentLine.replace(/^Travel\s+Tip[\*:]?\s*/i, '').replace(/\*\*/g, '');
+        //                 } else if (contentLine && contentLine.match(/^[-•*]\s/) && currentSection) {
+        //                     // Bullet point item
+        //                     const item = contentLine.replace(/^[-•*]\s+/, '').replace(/\*\*/g, '');
+        //                     if (item.length > 0) {
+        //                         dayData[currentSection].push(item);
+        //                     }
+        //                 } else if (contentLine && currentSection && !contentLine.match(/^(Morning|Afternoon|Evening|Budget|Travel Tip|---)/i)) {
+        //                     // Non-bullet content in current section
+        //                     if (contentLine.length > 0 && !contentLine.match(/^---+$/)) {
+        //                         dayData[currentSection].push(contentLine.replace(/\*\*/g, ''));
+        //                     }
+        //                 }
+        //                 i++;
+        //             }
+
+        //             parsedDays.push(dayData);
+        //         } else {
+        //             i++;
+        //         }
+        //     }
+
+        //     // Build enhanced HTML with emojis and beautiful cards
+        //     let html = '<div style="margin-top: var(--space-20);">';
+
+        //     // Header section with gradient background
+        //     if (header) {
+        //         html += `
+        //             <div style="background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-teal-700) 100%); border-radius: var(--radius-lg); padding: var(--space-24); margin-bottom: var(--space-24); color: white; box-shadow: var(--shadow-lg);">
+        //                 <h2 style="color: white; margin-bottom: var(--space-12); font-size: var(--font-size-3xl);">✈️ ${destination} Travel Itinerary</h2>
+        //                 <div style="font-size: var(--font-size-base); line-height: 1.8; opacity: 0.95;">
+        //                     ${header.replace(/\*\*/g, '')}
+        //                 </div>
+        //                 <div style="margin-top: var(--space-16); font-size: var(--font-size-sm); display: flex; gap: var(--space-20); flex-wrap: wrap;">
+        //                     <span>📅 ${new Date(startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+        //                     <span>→</span>
+        //                     <span>📅 ${new Date(endDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+        //                     <span style="margin-left: auto; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 12px;">🗓️ ${parsedDays.length} Days</span>
+        //                 </div>
+        //             </div>
+        //         `;
+        //     }
+
+        //     // Day cards with beautiful styling and emojis
+        //     if (parsedDays.length > 0) {
+        //         html += '<div style="display: grid; gap: var(--space-20);">';
+
+        //         parsedDays.forEach((dayData, index) => {
+        //             const dayDate = new Date(startDate);
+        //             dayDate.setDate(dayDate.getDate() + index);
+        //             const formattedDate = dayDate.toLocaleDateString('en-IN', {
+        //                 weekday: 'long',
+        //                 day: 'numeric',
+        //                 month: 'long',
+        //                 year: 'numeric'
+        //             });
+
+        //             // Assign gradient color based on day number
+        //             const gradients = [
+        //                 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        //                 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+        //                 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+        //                 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+        //                 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+        //                 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+        //                 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+        //                 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'
+        //             ];
+        //             const gradient = gradients[index % gradients.length];
+
+        //             html += `
+        //                 <div style="background-color: var(--color-surface); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-md); border: 1px solid var(--color-card-border); transition: transform 0.2s;">
+        //                     <!-- Day Header with Gradient -->
+        //                     <div style="background: ${gradient}; padding: var(--space-20); color: white;">
+        //                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-12);">
+        //                             <h3 style="margin: 0; font-size: var(--font-size-2xl); color: white;">📅 Day ${dayData.day}${dayData.title ? ': ' + dayData.title.replace(/\*\*/g, '') : ''}</h3>
+        //                             <span style="font-size: var(--font-size-sm); background: rgba(255,255,255,0.25); padding: 6px 14px; border-radius: 16px;">${formattedDate}</span>
+        //                         </div>
+        //                     </div>
+                            
+        //                     <!-- Day Content -->
+        //                     <div style="padding: var(--space-24);">
+        //                         ${dayData.morning.length > 0 ? `
+        //                             <div style="margin-bottom: var(--space-20);">
+        //                                 <h4 style="color: var(--color-primary); font-size: var(--font-size-lg); margin-bottom: var(--space-12); display: flex; align-items: center; gap: var(--space-8);">
+        //                                     ☀️ Morning
+        //                                 </h4>
+        //                                 <div style="background-color: var(--color-background); padding: var(--space-16); border-radius: var(--radius-base); border-left: 3px solid #FFD700;">
+        //                                     ${dayData.morning.map(item => {
+        //                 // Check if item already has emoji (like ⏰)
+        //                 if (item.startsWith('⏰') || item.startsWith('🕐')) {
+        //                     return `<div style="margin-bottom: var(--space-8); color: var(--color-text-secondary); font-size: var(--font-size-sm); font-weight: 500;">${item}</div>`;
+        //                 }
+        //                 return `<div style="margin-bottom: var(--space-8); color: var(--color-text); line-height: 1.6;">${addEmojiToActivity(item)}</div>`;
+        //             }).join('')}
+        //                                 </div>
+        //                             </div>
+        //                         ` : ''}
+                                
+        //                         ${dayData.afternoon.length > 0 ? `
+        //                             <div style="margin-bottom: var(--space-20);">
+        //                                 <h4 style="color: var(--color-primary); font-size: var(--font-size-lg); margin-bottom: var(--space-12); display: flex; align-items: center; gap: var(--space-8);">
+        //                                     🌤️ Afternoon
+        //                                 </h4>
+        //                                 <div style="background-color: var(--color-background); padding: var(--space-16); border-radius: var(--radius-base); border-left: 3px solid #FF8C00;">
+        //                                     ${dayData.afternoon.map(item => {
+        //                 if (item.startsWith('⏰') || item.startsWith('🕐')) {
+        //                     return `<div style="margin-bottom: var(--space-8); color: var(--color-text-secondary); font-size: var(--font-size-sm); font-weight: 500;">${item}</div>`;
+        //                 }
+        //                 return `<div style="margin-bottom: var(--space-8); color: var(--color-text); line-height: 1.6;">${addEmojiToActivity(item)}</div>`;
+        //             }).join('')}
+        //                                 </div>
+        //                             </div>
+        //                         ` : ''}
+                                
+        //                         ${dayData.evening.length > 0 ? `
+        //                             <div style="margin-bottom: var(--space-20);">
+        //                                 <h4 style="color: var(--color-primary); font-size: var(--font-size-lg); margin-bottom: var(--space-12); display: flex; align-items: center; gap: var(--space-8);">
+        //                                     🌅 Evening
+        //                                 </h4>
+        //                                 <div style="background-color: var(--color-background); padding: var(--space-16); border-radius: var(--radius-base); border-left: 3px solid #FF6347;">
+        //                                     ${dayData.evening.map(item => {
+        //                 if (item.startsWith('⏰') || item.startsWith('🕐')) {
+        //                     return `<div style="margin-bottom: var(--space-8); color: var(--color-text-secondary); font-size: var(--font-size-sm); font-weight: 500;">${item}</div>`;
+        //                 }
+        //                 return `<div style="margin-bottom: var(--space-8); color: var(--color-text); line-height: 1.6;">${addEmojiToActivity(item)}</div>`;
+        //             }).join('')}
+        //                                 </div>
+        //                             </div>
+        //                         ` : ''}
+                                
+        //                         <!-- Budget and Tip -->
+        //                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-16); margin-top: var(--space-20);">
+        //                             ${dayData.budget ? `
+        //                                 <div style="background: linear-gradient(135deg, rgba(33, 128, 141, 0.1) 0%, rgba(33, 128, 141, 0.05) 100%); padding: var(--space-16); border-radius: var(--radius-base); border: 1px solid var(--color-card-border);">
+        //                                     <div style="font-weight: 600; color: var(--color-primary); margin-bottom: var(--space-8); font-size: var(--font-size-sm);">💰 Budget</div>
+        //                                     <div style="color: var(--color-text); font-size: var(--font-size-base);">${dayData.budget}</div>
+        //                                 </div>
+        //                             ` : ''}
+        //                             ${dayData.tip ? `
+        //                                 <div style="background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%); padding: var(--space-16); border-radius: var(--radius-base); border: 1px solid var(--color-card-border);">
+        //                                     <div style="font-weight: 600; color: #f57c00; margin-bottom: var(--space-8); font-size: var(--font-size-sm);">💡 Travel Tip</div>
+        //                                     <div style="color: var(--color-text); font-size: var(--font-size-base);">${dayData.tip}</div>
+        //                                 </div>
+        //                             ` : ''}
+        //                         </div>
+        //                     </div>
+        //                 </div>
+        //             `;
+        //         });
+
+        //         html += '</div>';
+        //     } else {
+        //         // Fallback if no days parsed
+        //         html += `
+        //             <div style="background-color: var(--color-surface); border-radius: var(--radius-lg); padding: var(--space-24); border: 1px solid var(--color-card-border); white-space: pre-wrap; line-height: 1.8;">
+        //                 ${itineraryText}
+        //             </div>
+        //         `;
+        //     }
+
+        //     html += '</div>';
+        //     return html;
+        // }
+
+        // Enhanced helper function to add emojis to activity items
+        function addEmojiToActivity(text) {
+            // Skip if text already has an emoji at the start
+            if (/^[\u{1F000}-\u{1F9FF}]/u.test(text)) {
+                return text;
+            }
+
+            // Add appropriate emojis based on keywords (in order of priority)
+            const emojiMap = {
+                'arrive|arrival|reach|check in': '✈️',
+                'breakfast|morning meal': '🍽️',
+                'lunch|afternoon meal': '🍽️',
+                'dinner|evening meal': '🍽️',
+                'hotel|resort|accommodation|stay|check into': '🏨',
+                'beach|shore|coast|sand|seaside': '🏖️',
+                'temple|shrine|church|mosque|religious|spiritual': '🛕',
+                'fort|palace|castle|monument|heritage site': '🏰',
+                'museum|gallery|art center': '🖼️',
+                'shopping|market|bazaar|mall|store': '🛍️',
+                'sunset|sunrise|dawn|dusk': '🌅',
+                'mountain|hill|peak|trek|hike|climb': '⛰️',
+                'jet ski|banana boat|water sports|parasailing|surfing|diving|scuba|snorkeling': '🏄',
+                'boat|cruise|ferry|sailing|ship': '⛵',
+                'park|garden|nature|forest|wildlife|sanctuary': '🌳',
+                'walk|stroll|wander|roam': '🚶',
+                'drive|car|vehicle|taxi|cab|ride': '🚗',
+                'train|railway|metro': '🚂',
+                'bus|coach': '🚌',
+                'bike|motorcycle|scooter|cycle': '🏍️',
+                'relax|rest|leisure|chill|unwind': '🧘',
+                'photography|photo|picture|camera|shoot': '📸',
+                'village|town|local area|neighborhood': '🏘️',
+                'lighthouse|beacon': '🗼',
+                'waterfall|falls|cascade': '💦',
+                'lake|pond|reservoir': '🏞️',
+                'river|stream': '🌊',
+                'food|eat|meal|dish|cuisine|restaurant|cafe|eatery': '🍴',
+                'visit|see|explore|discover': '👀',
+                'festival|celebration|event': '🎉',
+                'yoga|meditation|wellness': '🧘‍♀️'
+            };
+
+            let result = text;
+            for (let [keywords, emoji] of Object.entries(emojiMap)) {
+                const regex = new RegExp(`\\b(${keywords})\\b`, 'i');
+                if (regex.test(text)) {
+                    result = emoji + ' ' + text;
+                    break;
+                }
+            }
+            return result;
+        }
+
+        // Input validation function to check if query is travel-related
+        function isValidTravelQuery(query) {
+            const travelKeywords = [
+                'destination', 'travel', 'trip', 'tour', 'visit', 'place', 'places', 'city', 'cities',
+                'country', 'countries', 'beach', 'beaches', 'mountain', 'mountains', 'hill', 'hills',
+                'temple', 'temples', 'monument', 'monuments', 'resort', 'resorts', 'hotel', 'hotels',
+                'itinerary', 'vacation', 'holiday', 'sightseeing', 'tourist', 'tourism', 'attractions',
+                'heritage', 'culture', 'cultural', 'historical', 'adventure', 'trekking', 'hiking',
+                'island', 'islands', 'lake', 'lakes', 'river', 'rivers', 'waterfall', 'waterfalls',
+                'fort', 'forts', 'palace', 'palaces', 'park', 'parks', 'garden', 'gardens',
+                'explore', 'exploring', 'best', 'top', 'famous', 'popular', 'budget', 'luxury',
+                'summer', 'winter', 'monsoon', 'spring', 'season', 'weather', 'climate',
+                'things to do', 'where to go', 'how to reach', 'getting to', 'distance',
+                'flight', 'train', 'bus', 'road trip', 'journey', 'route', 'transportation',
+                'food', 'cuisine', 'restaurant', 'cafe', 'shopping', 'market', 'bazaar',
+                'stay', 'accommodation', 'lodge', 'guesthouse', 'hostel', 'homestay',
+                'visa', 'passport', 'booking', 'package', 'guide', 'tour guide'
+            ];
+
+            const personalInfoPatterns = [
+                /\b(phone|mobile|number|contact|email|address|home|personal|password|credit card|bank|account)\b/i,
+                /\b(who is|who are)\b.*\b(person|people|celebrity|player|actor|politician)\b/i,
+                /\b\d{10}\b/, // Phone numbers
+                /\b[\w\.-]+@[\w\.-]+\.\w+\b/, // Email addresses
+                /\b(my name is|i am|i'm)\b/i
+            ];
+
+            const queryLower = query.toLowerCase().trim();
+
+            // Check for personal info patterns - REJECT if found
+            for (let pattern of personalInfoPatterns) {
+                if (pattern.test(queryLower)) {
+                    return {
+                        valid: false,
+                        reason: 'Please avoid entering personal information. This is a travel destination search tool.'
+                    };
+                }
+            }
+
+            // Check for non-travel celebrity/person queries
+            if (/\b(who is|who are)\b/i.test(queryLower) &&
+                !/\b(destination|place|city|country|founder|architect|king|queen|emperor|ruler)\b/i.test(queryLower)) {
+                return {
+                    valid: false,
+                    reason: 'This appears to be a non-travel query. Please ask about travel destinations, places, or travel-related information.'
+                };
+            }
+
+            // Check if query contains at least one travel-related keyword
+            const hasTravelKeyword = travelKeywords.some(keyword => queryLower.includes(keyword));
+
+            // Check for generic questions that might be travel-related even without keywords
+            const genericTravelPatterns = [
+                /\b(best|top|famous|popular|beautiful)\b.*\b(in|near|around)\b/i,
+                /\b(where|what|how)\b.*\b(go|visit|see|find)\b/i,
+                /\b(weekend|getaway|trip|tour)\b/i
+            ];
+
+            const hasGenericTravel = genericTravelPatterns.some(pattern => pattern.test(queryLower));
+
+            if (!hasTravelKeyword && !hasGenericTravel) {
+                return {
+                    valid: false,
+                    reason: 'Please enter a travel-related query (e.g., destinations, attractions, travel tips, places to visit).'
+                };
+            }
+
+            return { valid: true };
+        }
+
+        // Override the searchDestinationsAI function with validation
+        async function searchDestinationsAI() {
+            const query = document.getElementById('searchQuery').value.trim();
+
+            if (!query) {
+                showError('searchResult', 'Please enter a search query');
+                return;
+            }
+
+            // Validate the query
+            const validation = isValidTravelQuery(query);
+            if (!validation.valid) {
+                showError('searchResult', validation.reason);
+                return;
+            }
+
+            showLoading('searchResult');
+
+            try {
+                const response = await fetch('/api/search-destinations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('searchResult').innerHTML = `<div class="result-box">${data.result}</div>`;
+                } else {
+                    showError('searchResult', data.error || 'Failed to search destinations');
+                }
+            } catch (error) {
+                showError('searchResult', 'Network error. Please try again.');
+            }
+        }
+
+        // New helper function to save the current AI result
+        async function saveCurrentAIItinerary(destination, days, startDate, endDate) {
+            const aiGenerated = window.currentAIResult || '';
+            const tripName = `${destination} - ${days} Day Trip`;
+
+            try {
+                const response = await fetch('/api/itineraries', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tripName,
+                        destination,
+                        startDate: startDate,
+                        endDate: endDate,
+                        budget: 0,
+                        notes: 'AI Generated Itinerary',
+                        aiGenerated
+                    })
+                });
+
+                if (response.ok) {
+                    alert('✅ Itinerary saved successfully!');
+                    switchTab('my-trips');
+                    document.querySelector('[onclick="switchTab(\'my-trips\')"]').click();
+                    await loadItinerariesFromServer();
+                }
+            } catch (error) {
+                alert('❌ Failed to save itinerary');
+            }
+        }
+    </script>
+</body>
+
+</html>
