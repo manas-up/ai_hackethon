@@ -1,0 +1,13 @@
+a	Team Alias	Team ID	API Key
+Nagpur	Nagpur_1	c41eba56-18ba-45ef-8da1-9c12e07866b7	sk-l1GBY3JNid6FaCw1vHr7Bg
+Nagpur	Nagpur_2	42d1346f-3838-4d1a-b309-e1d3e2cf0173	sk-IS4Ma10f5NRmlhCgQldVzw
+Nagpur	Nagpur_3	81cc735c-e9ca-40ba-bdc5-8b9803d6fc61	sk-hLNX2jZMs4OZfLgDs-6PkQ
+Nagpur	Nagpur_4	96374557-6307-4ac0-9818-6de2caa6032c	sk-L4tGZ10E1f29JnjjE5LT2g
+Nagpur	Nagpur_5	304aaaaa-4a2b-4179-a088-5b370b142883	sk-w3MhAThbauXLizR2r8cnug
+Nagpur	Nagpur_6	4c3be4c9-a898-4cec-be5d-392f89f94f0f	sk-v48eg7fP6CBeKOd-WyfR4Q
+Nagpur	Nagpur_7	22ad2891-28e8-4e0e-90ec-c36f4ff655cd	sk-sHXAwitKMiMTaaCrepOR_w
+Nagpur	Nagpur_8	ba741031-dae0-49a6-95a0-9e8996b1996b	sk-6OJq7dw_fbKha8A0XEjpFA
+Nagpur	Nagpur_9	d77ad424-c163-4b64-ad48-eb4c8776d56c	sk-Z8WKy2k1OUjm2M2TKhJ8EQ
+Nagpur	Nagpur_10	5484657b-78d5-4c0e-9292-5762da8ab551	sk-8Vg-QTZscoZMTkhumW6rVw
+Nagpur	Nagpur_11	3baf25e1-0197-456e-b948-dd9de5b10ceb	sk-ENiAYOqNiFBCNvbboQhnIQ
+Nagpur	Nagpur_12	30e397c1-24cc-41a5-b4bb-503dc42ff819	sk-PkSmRxpZ5nUJ_Ab8CBc-8Q
